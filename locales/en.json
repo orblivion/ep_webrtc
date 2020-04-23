@@ -1,5 +1,7 @@
 {
     "pad.settings.enablertc": "Enable Audio/Video Chat",
+    "pad.settings.audioenabledonstart": "Audio On At Start",
+    "pad.settings.videoenabledonstart": "Video On At Start",
 
     "pad.ep_webrtc.error.notSupported.sorry": "Sorry, your browser does not support WebRTC (or you have it disabled in your settings).",
     "pad.ep_webrtc.error.notSupported.howTo": "To participate in this audio/video chat you have to use a browser with WebRTC support like Chrome, Firefox, Safari, Edge, or Opera.",
@@ -11,6 +13,11 @@
     "pad.ep_webrtc.error.otherCantAccess": "Sorry, the browser doesn't have access to your camera and/or microphone.  Please check permissions in your browser's settings. This is most likely not a hardware error:",
     "pad.ep_webrtc.error.other": "Sorry, there was an unknown error:",
 
-    "pad.settings.audioenabledonstart": "Audio On At Start",
-    "pad.settings.videoenabledonstart": "Video On At Start"
+    "admin.settings.enablertc": "Enable Audio/Video Chat on Page load",
+    "admin.settings.audioallowed": "Audio Allowed",
+    "admin.settings.videoallowed": "Video Allowed",
+    "admin.settings.audioenabledonstart": "Enable Audio on Page load",
+    "admin.settings.videoenabledonstart": "Enable Video on Page load",
+
+    "ep_webrtc.adminMenuEntry": "WebRTC Settings"
 }

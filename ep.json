@@ -3,10 +3,12 @@
         {
             "name": "ep_webrtc",
             "hooks": {
+                "expressCreateServer": "ep_webrtc/index:registerRoute",
                 "clientVars": "ep_webrtc/index:clientVars",
                 "handleMessage" : "ep_webrtc/index:handleMessage",
                 "socketio" : "ep_webrtc/index:setSocketIO",
                 "eejsBlock_mySettings": "ep_webrtc/index",
+                "eejsBlock_adminMenu": "ep_webrtc/index",
                 "eejsBlock_editorContainerBox": "ep_webrtc/index",
                 "eejsBlock_styles": "ep_webrtc/index"
             },

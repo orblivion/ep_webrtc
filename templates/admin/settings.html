@@ -1,0 +1,95 @@
+<!-- TODO add the other fields -->
+<!-- TODO add CSS style -->
+<!doctype html>
+<html>
+  <!-- TODO make this general-purpose for all of etherpad. See what you can do to factor out some of this logic. Assuming they care. Maybe overcomplicating tho. -->
+  <head>
+    <title data-l10n-id="ep_webrtc.adminMenuEntry">WebRTC Settings</title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="../static/css/admin.css">
+    <script src="../static/js/jquery.js"></script>
+    <script src="../socket.io/socket.io.js"></script>
+    <script src="../static/js/admin/minify.json.js"></script>
+    <script src="../static/plugins/ep_webrtc/static/js/admin/settings.js"></script>
+    <script src="../static/js/admin/jquery.autosize.js"></script>
+
+    <!-- TODO - need these? -->
+    <link rel="localizations" type="application/l10n+json" href="../locales.json" /> 
+    <script type="text/javascript" src="../static/js/html10n.js"></script>
+    <script type="text/javascript" src="../static/js/l10n.js"></script>
+  </head>
+  <body>
+    <div id="wrapper">
+
+      <!-- TODO - need this? -->
+      <% if (errors.length) { %>
+        <div class="errors">
+          <% errors.forEach(function (item) { %>
+            <div class="error"><%= item.toString() %></div>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <div class="menu">
+        <h1><a href="../">Etherpad</a></h1>
+        <ul>
+          <% e.begin_block("adminMenu"); %>
+          <li><a href="plugins">Plugin manager</a> </li>
+          <li><a href="settings">Settings</a> </li>
+          <li><a href="plugins/info">Troubleshooting information</a> </li>
+          <% e.end_block(); %>
+        </ul>
+      </div>
+
+      <div class="innerwrapper">
+        <h2>Defaults for users</h2>
+        <p>
+          Values that users can override:
+        </p>
+
+        <p>
+          <input type="checkbox" id="options-enablertc" class="settingToUpdate" <%= enabled %>></input>
+          <label for="options-enablertc" data-l10n-id="admin.settings.enablertc">Enable Audio/Video Chat on Page load</label>
+        </p>
+        <p>
+          <input type="checkbox" id="options-audioenabledonstart" class="settingToUpdate" <%= audio_enabled_on_start_default %>></input>
+          <label for="options-audioenabledonstart" data-l10n-id="admin.settings.audioenabledonstart">Enable Audio on Page load</label>
+        </p>
+        <p>
+          <input type="checkbox" id="options-videoenabledonstart" class="settingToUpdate" <%= video_enabled_on_start_default %>></input>
+          <label for="options-videoenabledonstart" data-l10n-id="admin.settings.videoenabledonstart">Enable Video on Page load</label>
+        </p>
+
+        <h2>Site-wide settings</h2>
+        <p>
+          Values that users <em>cannot</em> override:
+        </p>
+        <p>
+          <input type="checkbox" id="options-audioallowed" class="settingToUpdate" <%= audio_allowed %>></input>
+          <label for="options-audioallowed" data-l10n-id="admin.settings.audioallowed">Audio Allowed</label>
+        </p>
+        <p>
+          <input type="checkbox" id="options-videoallowed" class="settingToUpdate" <%= video_allowed %>></input>
+          <label for="options-videoallowed" data-l10n-id="admin.settings.videoallowed">Video Allowed</label>
+        </p>
+
+        <h2>Save</h2>
+        <p>
+          Warning: This will edit your settings.js, but it will make a backup first. It will attempt to maintain all of your comments, but it may be impossible for the areas that are being edited. Diff them to be sure you kept everything you needed.
+        </p>
+        <p>
+          <input type="button" class="settingsButton" id="saveSettings" value="Save Settings">
+          <input type="button" class="settingsButton" id="restartEtherpad" value="Restart Etherpad">
+        </p>
+
+        <div id="response"></div>
+      </div>
+
+      <div class="innerwrapper-err" >
+        <h2 class="err-message"></h2>
+      </div>
+
+    </div>
+  <div style="display:none"><a href="/javascript" data-jslicense="1">JavaScript license information</a></div>
+  </body>
+</html>

@@ -13,5 +13,7 @@
     "node": ">=0.6.3"
   },
   "dependencies": {
+    "comment-json": "^3.0.2",
+    "diff": "^4.0.2"
   }
 }

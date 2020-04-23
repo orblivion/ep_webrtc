@@ -17,11 +17,14 @@
 var log4js = require('ep_etherpad-lite/node_modules/log4js')
 var statsLogger = log4js.getLogger("stats");
 var configLogger = log4js.getLogger("configuration");
+var commentJson = require('comment-json'); // TODO - vet this dependency. see if it has good tests.
 var eejs = require('ep_etherpad-lite/node/eejs/');
 var settings = require('ep_etherpad-lite/node/utils/Settings');
 var sessioninfos = require('ep_etherpad-lite/node/handler/PadMessageHandler').sessioninfos;
 var stats = require('ep_etherpad-lite/node/stats')
 var socketio;
+var hooks = require("ep_etherpad-lite/static/js/pluginfw/hooks");
+var fs = require('fs');
 
 /**
  * Handles an RTC Message
@@ -146,8 +149,114 @@ exports.handleMessage = function ( hook, context, callback )
 
 exports.setSocketIO = function (hook, context, callback)
 {
-  socketio = context.io;
+  // TODO - is this namespace for admin a good idea and correctly used vis a vis the client code?
+  socketio = context.io.of("/webrtc-admin");
+
+  function createNewSettings(oldSettings, fields) {
+    const settingsObj = commentJson.parse(oldSettings)
+
+    const settingsObjModified = commentJson.assign(settingsObj, {
+      "ep_webrtc": {
+        "enabled": fields["enabled"],
+        "audio_allowed": fields["audio_allowed"],
+        "audio_enabled_on_start_default": fields["audio_enabled_on_start_default"],
+        "video_allowed": fields["video_allowed"],
+        "video_enabled_on_start_default": fields["video_enabled_on_start_default"]
+      }
+    })
+
+    return commentJson.stringify(settingsObjModified, null, 2)
+  }
+
+  socketio.on('connection', function (socket) {
+
+    if (!socket.conn.request.session || !socket.conn.request.session.user || !socket.conn.request.session.user.is_admin) return;
+
+    // TODO - do I need this permission to stop using this tab in general?
+    // if(settings.showSettingsInAdminPage === false) {
+    //   socket.emit("settingsDiff", {results:'NOT_ALLOWED'});
+    // }
+    // else {
+    //   socket.emit("settingsDiff", {results: diff});
+    // }
+
+    socket.on("saveSettings", function (args) {
+      // TODO socket stuff like the other settings.json panel. and all the other
+      // stuff currently in that endpoint in etherpad-lite
+      // TODO Change the warning to make sure they're not editing somewhere else at the
+      //      same time.
+      // TODO - check authorization here as well
+
+      fs.readFile('settings.json', 'utf8', function (err, oldSettings) {
+        if (err) {
+          return console.log(err);
+        }
+        // TODO - async
+        // TODO - several backups; bk1, bk2, etc
+        fs.writeFileSync('settings.json.bk', oldSettings)
+
+        const newSettings = createNewSettings(oldSettings, args.fields)
+
+        // TODO - async again
+        fs.writeFileSync('settings.json', newSettings)
+        socket.emit("saveprogress", "saved");
+
+        // TODO - maybe restart always on save? Otherwise if you revisit this admin
+        // page, the old settings are still in the checkboxes!
+      })
+    });
+
+    socket.on("restartServer", function () {
+      console.log("Admin request to restart server through a socket on /admin/webrtc");
+      settings.reloadSettings();
+      hooks.aCallAll("restartServer", {}, function () {});
+    });
+
+  });
+
   callback();
+};
+
+exports.eejsBlock_adminMenu = function (hook, context, cb)
+{
+    context.content += eejs.require('ep_webrtc/templates/admin/adminMenuEntry.ejs', {});
+    cb();
+};
+
+exports.registerRoute = function (hook_name, args, cb) {
+  args.app.get("/admin/webrtc", function(req, res) {
+    var enabled = (settings.ep_webrtc && settings.ep_webrtc.enabled === false)
+      ? 'unchecked'
+      : 'checked';
+
+    // TODO - update these to the correct settings names
+    var audioEnabledOnStart = (settings.ep_webrtc && settings.ep_webrtc.audio_enabled_on_start_default === false)
+      ? 'unchecked'
+      : 'checked'
+
+    var videoEnabledOnStart = (settings.ep_webrtc && settings.ep_webrtc.video_enabled_on_start_default === false)
+      ? 'unchecked'
+      : 'checked'
+
+    var audioAllowed = (settings.ep_webrtc && settings.ep_webrtc.audio_allowed === false)
+      ? 'unchecked'
+      : 'checked';
+
+    var videoAllowed = (settings.ep_webrtc && settings.ep_webrtc.video_allowed === false)
+      ? 'unchecked'
+      : 'checked';
+
+    res.send(eejs.require("ep_webrtc/templates/admin/settings.html", {
+      errors : [], // TODO - need this? copied from etherpad-lite settings
+      enabled : enabled,
+      audio_enabled_on_start_default: audioEnabledOnStart,
+      video_enabled_on_start_default: videoEnabledOnStart,
+      audio_allowed : audioAllowed,
+      video_allowed : videoAllowed
+    }))
+  })
+
+  cb()
 };
 
 exports.eejsBlock_mySettings = function (hook, context, callback)
@@ -172,7 +281,7 @@ exports.eejsBlock_mySettings = function (hook, context, callback)
 exports.eejsBlock_editorContainerBox = function (hook_name, args, cb) {
   args.content = args.content + eejs.require("ep_webrtc/templates/webrtc.ejs", {}, module);
   return cb();
-}
+};
 
 exports.eejsBlock_styles = function (hook_name, args, cb) {
   args.content = args.content + eejs.require("ep_webrtc/templates/styles.html", {}, module);
