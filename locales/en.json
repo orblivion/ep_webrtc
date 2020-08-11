@@ -14,10 +14,8 @@
     "pad.ep_webrtc.error.other": "Sorry, there was an unknown error:",
 
     "admin.settings.enablertc": "Enable Audio/Video Chat on Page load",
-    "admin.settings.audioallowed": "Audio Allowed",
-    "admin.settings.videoallowed": "Video Allowed",
-    "admin.settings.audioenabledonstart": "Enable Audio on Page load",
-    "admin.settings.videoenabledonstart": "Enable Video on Page load",
+    "admin.settings.audio": "Audio",
+    "admin.settings.video": "Video",
 
     "ep_webrtc.adminMenuEntry": "WebRTC Settings"
 }

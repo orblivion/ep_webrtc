@@ -48,29 +48,24 @@
         </p>
 
         <p>
-          <input type="checkbox" id="options-enablertc" class="settingToUpdate" <%= enabled %>></input>
           <label for="options-enablertc" data-l10n-id="admin.settings.enablertc">Enable Audio/Video Chat on Page load</label>
+          <input type="checkbox" id="options-enablertc" class="settingToUpdate" <%= enabled %>></input>
         </p>
         <p>
-          <input type="checkbox" id="options-audioenabledonstart" class="settingToUpdate" <%= audio_enabled_on_start_default %>></input>
-          <label for="options-audioenabledonstart" data-l10n-id="admin.settings.audioenabledonstart">Enable Audio on Page load</label>
+          <label for="options-audiodisabled" data-l10n-id="admin.settings.audio">Audio</label>
+          <select id="options-audiodisabled" name="options-audiodisabled" class="settingToUpdate">
+            <option value="none" <% if (audio_disabled === "none") { %>selected="selected"<% } %>>Enabled By Default</option>
+            <option value="soft" <% if (audio_disabled === "soft") { %>selected="selected"<% } %>>Disabled By Default ("soft-disabled")</option>
+            <option value="hard" <% if (audio_disabled === "hard") { %>selected="selected"<% } %>>Unavailable to Users ("hard-disabled")</option>
+          </select>
         </p>
         <p>
-          <input type="checkbox" id="options-videoenabledonstart" class="settingToUpdate" <%= video_enabled_on_start_default %>></input>
-          <label for="options-videoenabledonstart" data-l10n-id="admin.settings.videoenabledonstart">Enable Video on Page load</label>
-        </p>
-
-        <h2>Site-wide settings</h2>
-        <p>
-          Values that users <em>cannot</em> override:
-        </p>
-        <p>
-          <input type="checkbox" id="options-audioallowed" class="settingToUpdate" <%= audio_allowed %>></input>
-          <label for="options-audioallowed" data-l10n-id="admin.settings.audioallowed">Audio Allowed</label>
-        </p>
-        <p>
-          <input type="checkbox" id="options-videoallowed" class="settingToUpdate" <%= video_allowed %>></input>
-          <label for="options-videoallowed" data-l10n-id="admin.settings.videoallowed">Video Allowed</label>
+          <label for="options-videodisabled" data-l10n-id="admin.settings.video">Video</label>
+          <select id="options-videodisabled" name="options-videodisabled" class="settingToUpdate">
+            <option value="none" <% if (video_disabled === "none") { %>selected="selected"<% } %>>Enabled By Default</option>
+            <option value="soft" <% if (video_disabled === "soft") { %>selected="selected"<% } %>>Disabled By Default ("soft-disabled")</option>
+            <option value="hard" <% if (video_disabled === "hard") { %>selected="selected"<% } %>>Unavailable to Users ("hard-disabled")</option>
+          </select>
         </p>
 
         <h2>Save</h2>

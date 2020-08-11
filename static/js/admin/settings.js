@@ -31,10 +31,8 @@ $(document).ready(function () {
     // it's not missed in the diff when they change it.
     return {
       'enabled': $("#options-enablertc").prop('checked'),
-      'audio_allowed': $("#options-audioallowed").prop('checked'),
-      'video_allowed': $("#options-videoallowed").prop('checked'),
-      'audio_enabled_on_start_default': $("#options-audioenabledonstart").prop('checked'),
-      'video_enabled_on_start_default': $("#options-videoenabledonstart").prop('checked')
+      'audio_disabled': $("#options-audiodisabled").prop('value'),
+      'video_disabled': $("#options-videodisabled").prop('value')
     }
   }
 

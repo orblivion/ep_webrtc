@@ -158,10 +158,12 @@ exports.setSocketIO = function (hook, context, callback)
     const settingsObjModified = commentJson.assign(settingsObj, {
       "ep_webrtc": {
         "enabled": fields["enabled"],
-        "audio_allowed": fields["audio_allowed"],
-        "audio_enabled_on_start_default": fields["audio_enabled_on_start_default"],
-        "video_allowed": fields["video_allowed"],
-        "video_enabled_on_start_default": fields["video_enabled_on_start_default"]
+        "audio": {
+          "disabled": fields["audio_disabled"],
+        },
+        "video": {
+          "disabled": fields["video_disabled"],
+        },
       }
     })
 
@@ -225,34 +227,27 @@ exports.eejsBlock_adminMenu = function (hook, context, cb)
 
 exports.registerRoute = function (hook_name, args, cb) {
   args.app.get("/admin/webrtc", function(req, res) {
+    // TODO - validate settings? what happens here if I do this?
+
     var enabled = (settings.ep_webrtc && settings.ep_webrtc.enabled === false)
       ? 'unchecked'
       : 'checked';
 
-    // TODO - update these to the correct settings names
-    var audioEnabledOnStart = (settings.ep_webrtc && settings.ep_webrtc.audio_enabled_on_start_default === false)
-      ? 'unchecked'
-      : 'checked'
+    var audioDisabled = "none";
+    if(settings.ep_webrtc && settings.ep_webrtc.audio){
+      audioDisabled = settings.ep_webrtc.audio.disabled;
+    }
 
-    var videoEnabledOnStart = (settings.ep_webrtc && settings.ep_webrtc.video_enabled_on_start_default === false)
-      ? 'unchecked'
-      : 'checked'
-
-    var audioAllowed = (settings.ep_webrtc && settings.ep_webrtc.audio_allowed === false)
-      ? 'unchecked'
-      : 'checked';
-
-    var videoAllowed = (settings.ep_webrtc && settings.ep_webrtc.video_allowed === false)
-      ? 'unchecked'
-      : 'checked';
+    var videoDisabled = "none";
+    if(settings.ep_webrtc && settings.ep_webrtc.video){
+      videoDisabled = settings.ep_webrtc.video.disabled;
+    }
 
     res.send(eejs.require("ep_webrtc/templates/admin/settings.html", {
       errors : [], // TODO - need this? copied from etherpad-lite settings
       enabled : enabled,
-      audio_enabled_on_start_default: audioEnabledOnStart,
-      video_enabled_on_start_default: videoEnabledOnStart,
-      audio_allowed : audioAllowed,
-      video_allowed : videoAllowed
+      audio_disabled: audioDisabled,
+      video_disabled: videoDisabled
     }))
   })
 
