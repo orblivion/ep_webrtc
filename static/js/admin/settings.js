@@ -30,7 +30,7 @@ $(document).ready(function () {
     // TODO Only use stuff selected by $('.settingToUpdate') so we make sure
     // it's not missed in the diff when they change it.
     return {
-      'enabled': $("#options-enablertc").prop('checked'),
+      'disabled': $("#options-disabled").prop('checked'),
       'audio_disabled': $("#options-audiodisabled").prop('value'),
       'video_disabled': $("#options-videodisabled").prop('value')
     }

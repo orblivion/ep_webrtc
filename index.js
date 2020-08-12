@@ -156,15 +156,16 @@ exports.setSocketIO = function (hook, context, callback)
     const settingsObj = commentJson.parse(oldSettings)
 
     const settingsObjModified = commentJson.assign(settingsObj, {
-      "ep_webrtc": {
-        "enabled": fields["enabled"],
-        "audio": {
+      "ep_webrtc": commentJson.assign(settingsObj["ep_webrtc"], {
+        "enabled": undefined, // Removing deprecated field
+        "disabled": fields["disabled"],
+        "audio": commentJson.assign(settingsObj["ep_webrtc"]["audio"], {
           "disabled": fields["audio_disabled"],
-        },
+        }),
         "video": {
           "disabled": fields["video_disabled"],
         },
-      }
+      })
     })
 
     return commentJson.stringify(settingsObjModified, null, 2)
@@ -227,11 +228,14 @@ exports.eejsBlock_adminMenu = function (hook, context, cb)
 
 exports.registerRoute = function (hook_name, args, cb) {
   args.app.get("/admin/webrtc", function(req, res) {
-    // TODO - validate settings? what happens here if I do this?
+    if (!validateSettings()) {
+      res.send(eejs.require("ep_webrtc/templates/admin/settings.html", {
+        errors: ["Validation error in settings.json. See server logs."] // TODO have it spit out the errors here
+      }))
+      return
+    }
 
-    var enabled = (settings.ep_webrtc && settings.ep_webrtc.enabled === false)
-      ? 'unchecked'
-      : 'checked';
+    var disabled = rtcDisabledInSettings() ? 'checked' : 'unchecked';
 
     var audioDisabled = "none";
     if(settings.ep_webrtc && settings.ep_webrtc.audio){
@@ -245,7 +249,7 @@ exports.registerRoute = function (hook_name, args, cb) {
 
     res.send(eejs.require("ep_webrtc/templates/admin/settings.html", {
       errors : [], // TODO - need this? copied from etherpad-lite settings
-      enabled : enabled,
+      disabled : disabled,
       audio_disabled: audioDisabled,
       video_disabled: videoDisabled
     }))
