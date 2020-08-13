@@ -289,11 +289,13 @@ exports.eejsBlock_styles = function (hook_name, args, cb) {
 
 function validateSettings() {
   if(settings.ep_webrtc) {
-    if(settings.ep_webrtc.enabled !== undefined && settings.ep_webrtc.disabled !== undefined) {
-      configLogger.error("Can't use both ep_webrtc.enabled (deprecated) and ep_webrtc.disabled in settings.json")
-      return false
-    }
-
+    // Ideally we would trigger a validation error if both `ep_webrtc.disabled` and the deprecated
+    // `ep_webrtc.enabled` are set. However, if a user with `ep_webrtc.enabled` makes the change in
+    // the admin, it will try to remove `ep_webrtc.enabled` and add `ep_webrtc.disabled` to make it
+    // up to date. Because of the following bug in the "Restart Etherpad" functionality, this will
+    // result in an error:
+    //
+    // https://github.com/ether/etherpad-lite/issues/4217
     if(settings.ep_webrtc.disabled !== undefined) {
       if (
         settings.ep_webrtc.disabled !== true &&
@@ -332,10 +334,13 @@ function validateSettings() {
 function rtcDisabledInSettings() {
   if(settings.ep_webrtc) {
     if(settings.ep_webrtc.disabled !== undefined) {
+      if(settings.ep_webrtc.enabled !== undefined) {
+        configLogger.warn("Using ep_webrtc.disabled in settings.json. Ignoring ep_webrtc.enabled, which is deprecated and should be removed.")
+      }
       return settings.ep_webrtc.disabled
     }
     if(settings.ep_webrtc.enabled !== undefined) {
-      configLogger.warn("ep_webrtc.enabled in settings.json is deprecated. Use ep_webrtc.disabled instead.")
+      configLogger.warn("Using ep_webrtc.enabled in settings.json, but it is deprecated. Update to ep_webrtc.disabled.")
       return settings.ep_webrtc.enabled === false
     }
   }
